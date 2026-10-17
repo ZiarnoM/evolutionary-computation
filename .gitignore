@@ -1,0 +1,9 @@
+build/
+venv/
+.venv/
+__pycache__/
+.cache/
+.idea/
+.vscode/
+*.swp
+.DS_Store
