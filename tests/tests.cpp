@@ -1,3 +1,4 @@
+#include <algorithm>
 #include <cstdio>
 #include <string>
 
@@ -76,10 +77,62 @@ static void test_random() {
     CHECK(r1.sol != r3.sol);
 }
 
+// Nodes on a line: 0 at x=0, 1 at x=10, 2 at x=5 with cost 6, the rest far away.
+// From node 0 the nearest node by distance is 2, but with its cost node 1 is better.
+// NN-any should then put node 2 between 1 and 0, where it adds no length.
+static void test_greedy_small() {
+    Instance t = make_instance("t", {0, 10, 5, 1000, 2000, 3000}, {0, 0, 0, 0, 0, 0},
+                               {0, 0, 6, 0, 0, 0});
+
+    Result r = nn_end(t, 0);
+    CHECK((r.sol == Solution{0, 1, 2}));
+    CHECK(r.obj == 26);
+
+    r = nn_any(t, 0);
+    CHECK((r.sol == Solution{1, 2, 0}));
+    CHECK(r.obj == 26);
+
+    // second node: 2*5+6 = 16 < 2*10 = 20, then node 1 goes into the first edge
+    r = greedy_cycle(t, 0);
+    CHECK((r.sol == Solution{0, 1, 2}));
+    CHECK(r.obj == 26);
+
+    // costs only: node 1 (cost 10) loses to node 2 although it is closer
+    Instance c = make_instance("c", {0, 1, 3, 100}, {0, 0, 0, 0}, {0, 10, 0, 0});
+    CHECK((nn_end(c, 0).sol == Solution{0, 2}));
+    CHECK((greedy_cycle(c, 0).sol == Solution{0, 2}));
+}
+
+static void test_all_starts() {
+    std::vector<Method> methods = {{"random", random_solution},
+                                   {"nn_end", nn_end},
+                                   {"nn_any", nn_any},
+                                   {"greedy_cycle", greedy_cycle}};
+    for (std::string name : {"TSPA", "TSPB"}) {
+        Instance inst = load_instance(std::string(DATA_DIR) + "/" + name + ".csv");
+        for (const Method& m : methods) {
+            int bad = 0;
+            for (int s = 0; s < inst.n; s++) {
+                Result r = m.run(inst, s);
+                bool ok = validate(inst, r.sol).empty() && r.obj == objective(inst, r.sol);
+                if (m.name != "random")
+                    ok = ok && std::find(r.sol.begin(), r.sol.end(), s) != r.sol.end();
+                if (!ok)
+                    bad++;
+            }
+            if (bad)
+                std::printf("%s %s: %d bad solutions\n", name.c_str(), m.name.c_str(), bad);
+            CHECK(bad == 0);
+        }
+    }
+}
+
 int main() {
     test_rounding();
     test_checker_examples();
     test_random();
+    test_greedy_small();
+    test_all_starts();
     if (failed) {
         std::printf("%d check(s) failed\n", failed);
         return 1;

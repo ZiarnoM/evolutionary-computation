@@ -21,3 +21,6 @@ struct Method {
 };
 
 Result random_solution(const Instance& inst, int start);
+Result nn_end(const Instance& inst, int start);
+Result nn_any(const Instance& inst, int start);
+Result greedy_cycle(const Instance& inst, int start);

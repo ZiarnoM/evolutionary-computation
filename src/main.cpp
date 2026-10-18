@@ -10,7 +10,10 @@
 
 static std::vector<Method> methods_for(int assignment) {
     if (assignment == 1)
-        return {{"random", random_solution}};
+        return {{"random", random_solution},
+                {"nn_end", nn_end},
+                {"nn_any", nn_any},
+                {"greedy_cycle", greedy_cycle}};
     return {};
 }
 
@@ -52,7 +55,7 @@ int main(int argc, char** argv) {
                 worst = std::max(worst, r.obj);
                 sum += r.obj;
             }
-            std::printf("%s %-10s min %7d  max %7d  avg %9.1f\n", name.c_str(), m.name.c_str(),
+            std::printf("%s %-12s min %7d  max %7d  avg %9.1f\n", name.c_str(), m.name.c_str(),
                         best, worst, (double)sum / inst.n);
         }
     }
