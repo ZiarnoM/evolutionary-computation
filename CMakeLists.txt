@@ -12,8 +12,8 @@ set(CMAKE_CXX_FLAGS_RELEASE "-O2")
 
 add_compile_options(-Wall -Wextra)
 
-file(GLOB CORE_SRC src/core/*.cpp)
-file(GLOB METHOD_SRC src/methods/*.cpp)
+file(GLOB CORE_SRC CONFIGURE_DEPENDS src/core/*.cpp)
+file(GLOB METHOD_SRC CONFIGURE_DEPENDS src/methods/*.cpp)
 add_library(ec STATIC ${CORE_SRC} ${METHOD_SRC})
 target_include_directories(ec PUBLIC src)
 
