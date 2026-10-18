@@ -55,4 +55,8 @@ Output in `results/assignment1/`:
   pasted into column F of the solution checker)
 
 `reports/assignment1/` has a plot of the best solution for each instance and method
-and `tables.md` with the result tables.
+and `tables.md` with the result tables. The report is `report.md`, the PDF is built with
+
+```
+cd reports/assignment1 && pandoc report.md -o report.pdf --pdf-engine=xelatex
+```
