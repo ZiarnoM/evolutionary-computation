@@ -26,6 +26,20 @@ The preset builds into `build/` with `-O2`. `compile_commands.json` is generated
 Without arguments it runs assignment 1. Data is read from `data/` and results go to
 `results/assignmentN/`, independent of the working directory.
 
+## Plots and tables
+
+Python is only used for plots and tables:
+
+```
+python3 -m venv venv
+venv/bin/pip install -r requirements.txt
+venv/bin/python scripts/plot_best.py 1
+venv/bin/python scripts/tables.py 1
+```
+
+The argument is the assignment number (default 1). Both scripts read
+`results/assignmentN/` and write to `reports/assignmentN/`.
+
 ## Assignment 1: greedy heuristics
 
 Methods: random solution, nearest neighbor adding only at the end of the path, nearest
@@ -39,3 +53,6 @@ Output in `results/assignment1/`:
 - `runs.csv` - objective of every run
 - `best/<instance>_<method>.txt` - best solution, one node index per line (can be
   pasted into column F of the solution checker)
+
+`reports/assignment1/` has a plot of the best solution for each instance and method
+and `tables.md` with the result tables.
