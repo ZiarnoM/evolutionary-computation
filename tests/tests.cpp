@@ -3,6 +3,7 @@
 
 #include "core/instance.h"
 #include "core/solution.h"
+#include "methods/methods.h"
 
 static int failed = 0;
 
@@ -64,9 +65,21 @@ static void test_checker_examples() {
     CHECK(validate(b, sb).empty());
 }
 
+static void test_random() {
+    Instance a = load_instance(std::string(DATA_DIR) + "/TSPA.csv");
+    Result r1 = random_solution(a, 0);
+    Result r2 = random_solution(a, 0);
+    Result r3 = random_solution(a, 1);
+    CHECK(validate(a, r1.sol).empty());
+    CHECK(r1.obj == objective(a, r1.sol));
+    CHECK(r1.sol == r2.sol);
+    CHECK(r1.sol != r3.sol);
+}
+
 int main() {
     test_rounding();
     test_checker_examples();
+    test_random();
     if (failed) {
         std::printf("%d check(s) failed\n", failed);
         return 1;
