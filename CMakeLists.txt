@@ -19,6 +19,7 @@ target_include_directories(ec PUBLIC src)
 
 add_executable(run src/main.cpp)
 target_link_libraries(run ec)
+target_compile_definitions(run PRIVATE PROJECT_DIR="${CMAKE_SOURCE_DIR}")
 
 enable_testing()
 add_executable(tests tests/tests.cpp)
