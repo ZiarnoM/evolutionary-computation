@@ -59,8 +59,7 @@ In both nearest neighbor variants the solution is built as an open path. Adding 
 ## Greedy cycle
 
 ```
-j = unselected node minimizing 2 * d[s][j] + c[j]
-cycle = [s, j]
+cycle = [s]
 while |cycle| < k:
     for every unselected node j and every edge (a, b) of the cycle:
         delta = d[a][j] + d[j][b] - d[a][b] + c[j]
@@ -68,7 +67,7 @@ while |cycle| < k:
 return cycle
 ```
 
-The second node is chosen with the doubled distance, because a cycle of two nodes uses the edge between them twice.
+When the cycle contains only s, its only edge is (s, s) with length 0, so the first insertion costs 2 d[s][j] + c[j]. This is the usual rule for the second node, because a cycle of two nodes uses the edge between them twice.
 
 ## Implementation notes
 
@@ -100,7 +99,7 @@ Table: Average time of one run in milliseconds.
 
 # Visualization of the best solutions
 
-In the plots, the size of every node shows its cost, so larger points are more expensive. Grey points are nodes that were not selected, and selected nodes are also coloured by cost (darker means more expensive). The size and colour scales are the same for all methods on one instance. The red circle marks the starting node of the best run. Random solutions have no starting node, so their plots have no circle.
+In the plots, the size of every node shows its cost, so larger points are more expensive. Grey points are nodes that were not selected, and selected nodes are also coloured by cost (darker means more expensive). The size and colour scales are the same for all methods on one instance. In the nearest neighbor plots the closing edge, added after the path is complete, is drawn as a dashed line. The red circle marks the starting node of the best run. Random solutions have no starting node, so their plots have no circle.
 
 ![](TSPA_random.png){width=95%}
 
@@ -172,7 +171,7 @@ All greedy methods are much better than random selection. The average random sol
 
 On TSPA the order of the methods is clear. Greedy cycle has the best average (73793) and the smallest spread between starting nodes (standard deviation 529). The nearest neighbor with insertion at any position is close (average 74347) and found the single best solution, 72328. The end-only nearest neighbor is about 18% worse on average (87477). It can only extend one end of the path, so when the area around the last node is used up it has to jump far, and these jumps are visible as long edges in its plot. Greedy cycle gave a better result than the any-position nearest neighbor from 144 of the 200 starting nodes.
 
-On TSPB the three greedy methods are almost equal on average (59397, 59476 and 59650), and the simplest end-only variant even has the lowest average. The any-position nearest neighbor found both the best solution on this instance (52915) and the worst greedy one (66164). We think the reason is the open path. The closing edge is added only at the end, so nothing keeps the two ends of the path close to each other. On TSPB the closing edge in solutions of this method is 2031 long on average, compared to 1651 for the end-only variant, and in the plot of its best solution the closing edge goes across the bottom of the map. The same effect is present on TSPA, only weaker (1576 against 1452), and the worst TSPA solution of this method (77022) has the longest closing edge of all its 200 runs, 3392. Greedy cycle does not have this problem, because every insertion is evaluated on a closed cycle.
+On TSPB the three greedy methods are almost equal on average (59397, 59476 and 59650), and the simplest end-only variant even has the lowest average. The any-position nearest neighbor found both the best solution on this instance (52915) and the worst greedy one (66164). We think the reason is the open path. The closing edge is added only at the end, so nothing keeps the two ends of the path close to each other. On TSPB the closing edge in solutions of this method is 2031 long on average, compared to 1651 for the end-only variant, and in its best solution the closing edge is 1850 long, more than three times longer than any other edge of that solution (the dashed line at the bottom of the plot). The same effect is present on TSPA, only weaker (1576 against 1452), and the worst TSPA solution of this method (77022) has the longest closing edge of all its 200 runs, 3392. Greedy cycle does not have this problem, because every insertion is evaluated on a closed cycle.
 
 The differences between the instances come mostly from the node costs. The node layout and distances are on a similar scale, but TSPA costs go up to 1997 (mean 971) and TSPB costs only up to 999 (mean 519). On TSPA the costs dominate: the best greedy solutions contain 87 to 92 of the 100 cheapest nodes, and in the plots almost all large grey points are left out, even those lying next to the cycle. On TSPB a cheap node is less important compared to the distance, the best solutions contain only 73 to 85 of the 100 cheapest nodes, and the result depends more on the starting node. The standard deviation over starting nodes is 2098 to 2812 on TSPB and 529 to 1332 on TSPA.
 

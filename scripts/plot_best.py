@@ -23,8 +23,14 @@ def plot(a, instance, method, obj, start, out_dir):
 
     fig, ax = plt.subplots(figsize=(9, 5.6))
     ax.scatter(nodes.x, nodes.y, s=size, color="#d6d6d6", zorder=1)
-    cyc = sol + sol[:1]
-    ax.plot(nodes.x.iloc[cyc], nodes.y.iloc[cyc], color="#555555", lw=1, zorder=2)
+    # NN methods build a path and close it at the end, so that edge is drawn dashed
+    nn = method in ("nn_end", "nn_any")
+    edges = sol if nn else sol + sol[:1]
+    ax.plot(nodes.x.iloc[edges], nodes.y.iloc[edges], color="#555555", lw=1, zorder=2)
+    if nn:
+        close = [sol[-1], sol[0]]
+        ax.plot(nodes.x.iloc[close], nodes.y.iloc[close], color="#555555", lw=1.2, ls="--",
+                zorder=2)
     pts = ax.scatter(sel.x, sel.y, s=size[sol], c=sel.cost, cmap=CMAP, norm=norm,
                      edgecolors="white", linewidths=0.6, zorder=3)
     # legend markers are drawn separately, the scatter ones take size and color from the data
@@ -33,6 +39,8 @@ def plot(a, instance, method, obj, start, out_dir):
         Line2D([], [], ls="", marker="o", ms=7, color="#3987e5", mec="white",
                label="selected"),
     ]
+    if nn:
+        handles.append(Line2D([], [], color="#555555", lw=1.2, ls="--", label="closing edge"))
     # for random the start index is only the seed
     if method != "random":
         ax.scatter(nodes.x[start], nodes.y[start], s=160, facecolors="none",
@@ -46,7 +54,7 @@ def plot(a, instance, method, obj, start, out_dir):
     ax.set_title(f"{label(method)}, {instance}, objective = {obj}")
     ax.set_xlabel("x")
     ax.set_ylabel("y")
-    ax.legend(handles=handles, loc="upper center", bbox_to_anchor=(0.5, -0.13), ncol=3,
+    ax.legend(handles=handles, loc="upper center", bbox_to_anchor=(0.5, -0.13), ncol=4,
               fontsize=8, frameon=False)
     for s in ("top", "right"):
         ax.spines[s].set_visible(False)
