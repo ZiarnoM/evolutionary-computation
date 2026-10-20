@@ -67,7 +67,7 @@ while |cycle| < k:
 return cycle
 ```
 
-When the cycle contains only s, its only edge is (s, s) with length 0, so the first insertion costs 2 d[s][j] + c[j]. This is the usual rule for the second node, because a cycle of two nodes uses the edge between them twice.
+When the cycle contains only s, its only edge is (s, s) with length 0, so the first insertion costs 2 d[s][j] + c[j].
 
 ## Implementation notes
 
