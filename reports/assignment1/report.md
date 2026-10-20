@@ -1,9 +1,10 @@
 ---
-title: "Evolutionary Computation, Assignment 1: Greedy heuristics"
-author:
-  - "Michał Żarnowski, 160277"
-  - "Piotr Szymiec, 160322"
-date: "October 2026"
+title: |
+  Evolutionary Computation\
+  Assignment 1: Greedy heuristics
+author: |
+  Michał Żarnowski 160277\
+  Piotr Szymiec 160322
 geometry: margin=2.3cm
 fontsize: 11pt
 ---
