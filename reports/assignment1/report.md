@@ -100,7 +100,7 @@ Table: Average time of one run in milliseconds.
 
 # Visualization of the best solutions
 
-In the plots, grey points are nodes that were not selected. Selected nodes are coloured and sized by their cost (darker and larger means more expensive), and the colour scale is the same for all methods on one instance. The red circle marks the starting node of the best run.
+In the plots, the size of every node shows its cost, so larger points are more expensive. Grey points are nodes that were not selected, and selected nodes are also coloured by cost (darker means more expensive). The size and colour scales are the same for all methods on one instance. The red circle marks the starting node of the best run.
 
 ![](TSPA_random.png){width=95%}
 
@@ -174,6 +174,6 @@ On TSPA the order of the methods is clear. Greedy cycle has the best average (73
 
 On TSPB the three greedy methods are almost equal on average (59397, 59476 and 59650), and the simplest end-only variant even has the lowest average. The any-position nearest neighbor found both the best solution on this instance (52915) and the worst greedy one (66164). We think the reason is the open path. The closing edge is added only at the end, so nothing keeps the two ends of the path close to each other. On TSPB the closing edge in solutions of this method is 2031 long on average, compared to 1651 for the end-only variant, and in the plot of its best solution the closing edge goes across the bottom of the map. The same effect is present on TSPA, only weaker (1576 against 1452), and the worst TSPA solution of this method (77022) has the longest closing edge of all its 200 runs, 3392. Greedy cycle does not have this problem, because every insertion is evaluated on a closed cycle.
 
-The differences between the instances come mostly from the node costs. The node layout and distances are on a similar scale, but TSPA costs go up to 1997 (mean 971) and TSPB costs only up to 999 (mean 519). On TSPA the costs dominate: the best greedy solutions contain 87 to 92 of the 100 cheapest nodes. On TSPB a cheap node is less important compared to the distance, the best solutions contain only 73 to 85 of the 100 cheapest nodes, and the result depends more on the starting node. The standard deviation over starting nodes is 2098 to 2812 on TSPB and 529 to 1332 on TSPA.
+The differences between the instances come mostly from the node costs. The node layout and distances are on a similar scale, but TSPA costs go up to 1997 (mean 971) and TSPB costs only up to 999 (mean 519). On TSPA the costs dominate: the best greedy solutions contain 87 to 92 of the 100 cheapest nodes, and in the plots almost all large grey points are left out, even those lying next to the cycle. On TSPB a cheap node is less important compared to the distance, the best solutions contain only 73 to 85 of the 100 cheapest nodes, and the result depends more on the starting node. The standard deviation over starting nodes is 2098 to 2812 on TSPB and 529 to 1332 on TSPA.
 
 The running times agree with the complexity. One run takes about 0.02 ms for the end-only nearest neighbor and 0.6 to 0.7 ms for the other two methods. Even the slowest method needs less than 0.2 s for all 200 starting nodes, so it makes sense to start from every node, especially since on TSPB the best and the worst start of the same method differ by up to 13249.

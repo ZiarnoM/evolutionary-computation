@@ -17,13 +17,14 @@ def plot(a, instance, method, obj, start, out_dir):
     sol = load_best(a, instance, method)
     norm = Normalize(nodes.cost.min(), nodes.cost.max())
     sel = nodes.iloc[sol]
-    size = 15 + 85 * norm(sel.cost)
+    # same size scale for all nodes, so skipped expensive nodes are visible too
+    size = 10 + 90 * norm(nodes.cost)
 
     fig, ax = plt.subplots(figsize=(9, 5.6))
-    ax.scatter(nodes.x, nodes.y, s=8, color="#d0d0d0", zorder=1, label="not selected")
+    ax.scatter(nodes.x, nodes.y, s=size, color="#d6d6d6", zorder=1, label="not selected")
     cyc = sol + sol[:1]
     ax.plot(nodes.x.iloc[cyc], nodes.y.iloc[cyc], color="#555555", lw=1, zorder=2)
-    pts = ax.scatter(sel.x, sel.y, s=size, c=sel.cost, cmap=CMAP, norm=norm,
+    pts = ax.scatter(sel.x, sel.y, s=size[sol], c=sel.cost, cmap=CMAP, norm=norm,
                      edgecolors="white", linewidths=0.6, zorder=3, label="selected")
     # for random the start index is only the seed
     if method != "random":
@@ -38,6 +39,8 @@ def plot(a, instance, method, obj, start, out_dir):
     ax.set_ylabel("y")
     leg = ax.legend(loc="upper center", bbox_to_anchor=(0.5, -0.13), ncol=3, fontsize=8,
                     frameon=False)
+    for h in leg.legend_handles[:2]:
+        h.set_sizes([40])
     leg.legend_handles[1].set_facecolor("#3987e5")
     for s in ("top", "right"):
         ax.spines[s].set_visible(False)
