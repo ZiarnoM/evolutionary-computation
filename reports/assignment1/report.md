@@ -100,7 +100,7 @@ Table: Average time of one run in milliseconds.
 
 # Visualization of the best solutions
 
-In the plots, the size of every node shows its cost, so larger points are more expensive. Grey points are nodes that were not selected, and selected nodes are also coloured by cost (darker means more expensive). The size and colour scales are the same for all methods on one instance. The red circle marks the starting node of the best run.
+In the plots, the size of every node shows its cost, so larger points are more expensive. Grey points are nodes that were not selected, and selected nodes are also coloured by cost (darker means more expensive). The size and colour scales are the same for all methods on one instance. The red circle marks the starting node of the best run. Random solutions have no starting node, so their plots have no circle.
 
 ![](TSPA_random.png){width=95%}
 

@@ -3,6 +3,7 @@ import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 from matplotlib.colors import LinearSegmentedColormap, Normalize
+from matplotlib.lines import Line2D
 from mpl_toolkits.axes_grid1 import make_axes_locatable
 
 from common import ROOT, assignment_arg, label, load_best, load_nodes, load_summary
@@ -21,15 +22,23 @@ def plot(a, instance, method, obj, start, out_dir):
     size = 10 + 90 * norm(nodes.cost)
 
     fig, ax = plt.subplots(figsize=(9, 5.6))
-    ax.scatter(nodes.x, nodes.y, s=size, color="#d6d6d6", zorder=1, label="not selected")
+    ax.scatter(nodes.x, nodes.y, s=size, color="#d6d6d6", zorder=1)
     cyc = sol + sol[:1]
     ax.plot(nodes.x.iloc[cyc], nodes.y.iloc[cyc], color="#555555", lw=1, zorder=2)
     pts = ax.scatter(sel.x, sel.y, s=size[sol], c=sel.cost, cmap=CMAP, norm=norm,
-                     edgecolors="white", linewidths=0.6, zorder=3, label="selected")
+                     edgecolors="white", linewidths=0.6, zorder=3)
+    # legend markers are drawn separately, the scatter ones take size and color from the data
+    handles = [
+        Line2D([], [], ls="", marker="o", ms=7, color="#d6d6d6", label="not selected"),
+        Line2D([], [], ls="", marker="o", ms=7, color="#3987e5", mec="white",
+               label="selected"),
+    ]
     # for random the start index is only the seed
     if method != "random":
         ax.scatter(nodes.x[start], nodes.y[start], s=160, facecolors="none",
-                   edgecolors="#c0392b", linewidths=1.5, zorder=4, label=f"start ({start})")
+                   edgecolors="#c0392b", linewidths=1.5, zorder=4)
+        handles.append(Line2D([], [], ls="", marker="o", ms=11, mfc="none", mec="#c0392b",
+                              mew=1.5, label=f"start ({start})"))
 
     ax.set_aspect("equal")
     cax = make_axes_locatable(ax).append_axes("right", size="3%", pad=0.15)
@@ -37,11 +46,8 @@ def plot(a, instance, method, obj, start, out_dir):
     ax.set_title(f"{label(method)}, {instance}, objective = {obj}")
     ax.set_xlabel("x")
     ax.set_ylabel("y")
-    leg = ax.legend(loc="upper center", bbox_to_anchor=(0.5, -0.13), ncol=3, fontsize=8,
-                    frameon=False)
-    for h in leg.legend_handles[:2]:
-        h.set_sizes([40])
-    leg.legend_handles[1].set_facecolor("#3987e5")
+    ax.legend(handles=handles, loc="upper center", bbox_to_anchor=(0.5, -0.13), ncol=3,
+              fontsize=8, frameon=False)
     for s in ("top", "right"):
         ax.spines[s].set_visible(False)
     fig.tight_layout()
