@@ -1,6 +1,8 @@
 ---
 title: "Evolutionary Computation, Assignment 1: Greedy heuristics"
-author: "Michał Żarnowski"
+author:
+  - "Michał Żarnowski"
+  - "Piotr Szymiec"
 date: "October 2026"
 geometry: margin=2.3cm
 fontsize: 11pt
@@ -24,7 +26,7 @@ P = random permutation of nodes 0..n-1
 return the first k nodes of P, in this order, as a cycle
 ```
 
-The generator is `std::mt19937` with seed `42 + i` for the i-th run, so each of the 200 random solutions can be reproduced on its own. The permutation is made with `std::shuffle`, whose exact output depends on the standard library, so the random results are reproducible with Apple clang (libc++) but would differ with GCC. This method is based on the random search written by pitrek98 and moved into the common code.
+The generator is `std::mt19937` with seed `42 + i` for the i-th run, so each of the 200 random solutions can be reproduced on its own. The permutation is made with `std::shuffle`, whose exact output depends on the standard library, so the random results are reproducible with Apple clang (libc++) but would differ with GCC. This method is based on the random search written by Piotr Szymiec and moved into the common code.
 
 ## Nearest neighbor, adding only at the end of the path
 
@@ -156,7 +158,7 @@ Greedy cycle, TSPB, objective 55655:
 
 Every solution was validated in the program as described above. In addition, the best solution of every method was recomputed with a separate Python script that uses only the coordinates from the CSV files and the formula from the checker, and all eight values matched. The checker itself was used to test the objective function: the example solutions already entered in the checker give 253566 for TSPA and 200088 for TSPB, and our implementation returns the same values (this is one of the unit tests).
 
-[TODO: confirm] The best solutions listed above were pasted into column F of the solution checker and the values computed by the checker are the same as in the table.
+The best solutions listed above were also pasted into column F of the solution checker, and for all eight of them the checker gives the same objective values as in the table.
 
 # Source code
 
