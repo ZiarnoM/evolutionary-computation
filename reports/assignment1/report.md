@@ -156,7 +156,7 @@ Greedy cycle, TSPB, objective 55655:
 
 # Solution checker
 
-Every solution was validated in the program as described above. In addition, the best solution of every method was recomputed with a separate Python script that uses only the coordinates from the CSV files and the formula from the checker, and all eight values matched. The checker itself was used to test the objective function: the example solutions already entered in the checker give 253566 for TSPA and 200088 for TSPB, and our implementation returns the same values (this is one of the unit tests).
+Every solution was validated in the program as described above. The checker itself was used to test the objective function: the example solutions already entered in the checker give 253566 for TSPA and 200088 for TSPB, and our implementation returns the same values (this is one of the unit tests).
 
 The best solutions listed above were also pasted into column F of the solution checker, and for all eight of them the checker gives the same objective values as in the table.
 
