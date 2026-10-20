@@ -26,7 +26,7 @@ P = random permutation of nodes 0..n-1
 return the first k nodes of P, in this order, as a cycle
 ```
 
-The generator is `std::mt19937` with seed `42 + i` for the i-th run, so each of the 200 random solutions can be reproduced on its own. The permutation is made with `std::shuffle`, whose exact output depends on the standard library, so the random results are reproducible with Apple clang (libc++) but would differ with GCC. This method is based on the random search written by Piotr Szymiec and moved into the common code.
+The generator is `std::mt19937` with seed `42 + i` for the i-th run, so each of the 200 random solutions can be reproduced on its own. The permutation is made with `std::shuffle`, whose exact output depends on the standard library, so the random results are reproducible with Apple clang (libc++) but would differ with GCC.
 
 ## Nearest neighbor, adding only at the end of the path
 
