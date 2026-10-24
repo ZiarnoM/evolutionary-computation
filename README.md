@@ -60,3 +60,19 @@ and `tables.md` with the result tables. The report is `report.md`, the PDF is bu
 ```
 cd reports/assignment1 && pandoc report.md -o report.pdf --pdf-engine=xelatex
 ```
+
+## Assignment 2: greedy regret heuristics
+
+```
+./build/run --assignment 2
+venv/bin/python scripts/plot_best.py 2
+venv/bin/python scripts/plot_weights.py
+venv/bin/python scripts/tables.py 2
+```
+
+Methods: 2-regret and weighted (2-regret + best change of the objective, equal weights),
+each with nearest neighbor insertion at any position and with greedy cycle insertion. All
+four are in `src/methods/regret.cpp`. The methods from assignment 1 are run again so the
+tables include them. Besides the files described above, `results/assignment2/weights.csv`
+has min, max and avg for regret weights from 0 to 1 (0 is plain greedy, 1 is pure regret),
+plotted in `reports/assignment2/weights.png`.
