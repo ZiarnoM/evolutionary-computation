@@ -103,11 +103,30 @@ static void test_greedy_small() {
     CHECK((greedy_cycle(c, 0).sol == Solution{0, 2}));
 }
 
+// with weight 0 the regret is ignored, so the result must be the same as the plain method
+static void test_regret_zero_weight() {
+    for (std::string name : {"TSPA", "TSPB"}) {
+        Instance inst = load_instance(std::string(DATA_DIR) + "/" + name + ".csv");
+        int diff = 0;
+        for (int s = 0; s < inst.n; s++) {
+            if (regret_insertion(inst, s, false, 0).sol != nn_any(inst, s).sol)
+                diff++;
+            if (regret_insertion(inst, s, true, 0).sol != greedy_cycle(inst, s).sol)
+                diff++;
+        }
+        CHECK(diff == 0);
+    }
+}
+
 static void test_all_starts() {
     std::vector<Method> methods = {{"random", random_solution},
                                    {"nn_end", nn_end},
                                    {"nn_any", nn_any},
-                                   {"greedy_cycle", greedy_cycle}};
+                                   {"greedy_cycle", greedy_cycle},
+                                   {"nn_any_regret", nn_any_regret},
+                                   {"nn_any_weighted", nn_any_weighted},
+                                   {"greedy_cycle_regret", greedy_cycle_regret},
+                                   {"greedy_cycle_weighted", greedy_cycle_weighted}};
     for (std::string name : {"TSPA", "TSPB"}) {
         Instance inst = load_instance(std::string(DATA_DIR) + "/" + name + ".csv");
         for (const Method& m : methods) {
@@ -132,6 +151,7 @@ int main() {
     test_checker_examples();
     test_random();
     test_greedy_small();
+    test_regret_zero_weight();
     test_all_starts();
     if (failed) {
         std::printf("%d check(s) failed\n", failed);
