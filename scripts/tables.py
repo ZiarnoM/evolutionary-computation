@@ -21,7 +21,6 @@ def main():
     df = load_summary(a)
     best_avg = df.groupby("instance")["avg"].min()
     best_min = df.groupby("instance")["min"].min()
-    fastest = df.groupby("instance")["avg_ms"].min()
     out = [
         "Objective value: average (min - max)",
         "",
@@ -31,8 +30,7 @@ def main():
         "",
         "Average time of one run [ms]",
         "",
-        table(df, lambda r: bold_if(f"{r.avg_ms:.3f}",
-                                    f"{r.avg_ms:.3f}" == f"{fastest[r.instance]:.3f}")),
+        table(df, lambda r: f"{r['avg_ms']:.3f}"),
         "",
     ]
     for r in df.itertuples():

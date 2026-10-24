@@ -68,11 +68,11 @@ Table: Objective value, average (min - max) over 200 runs. The best average and 
 | Greedy cycle, 2-regret | 120378.8 (112806 - 128089) | 72484.8 (68150 - 77274) |
 | Greedy cycle, weighted | **73353.5** (**72011** - 75532) | 57863.3 (52731 - 63370) |
 
-Table: Average time of one run in milliseconds, the fastest method in bold.
+Table: Average time of one run in milliseconds.
 
 | Method | TSPA | TSPB |
 |---|---|---|
-| Random solution | **0.005** | **0.005** |
+| Random solution | 0.005 | 0.005 |
 | Nearest neighbor (end only) | 0.019 | 0.018 |
 | Nearest neighbor (any position) | 0.715 | 0.722 |
 | Greedy cycle | 0.621 | 0.628 |

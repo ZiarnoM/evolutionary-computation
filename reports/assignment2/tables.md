@@ -15,7 +15,7 @@ Average time of one run [ms]
 
 | Method | TSPA | TSPB |
 |---|---|---|
-| Random solution | **0.005** | **0.005** |
+| Random solution | 0.005 | 0.005 |
 | Nearest neighbor (end only) | 0.019 | 0.018 |
 | Nearest neighbor (any position) | 0.715 | 0.722 |
 | Greedy cycle | 0.621 | 0.628 |
