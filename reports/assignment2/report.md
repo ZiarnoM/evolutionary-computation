@@ -55,7 +55,7 @@ In every step all unselected nodes are checked at all positions, as in the greed
 
 Each method except the random one was started from every node (200 runs per instance), and 200 random solutions were generated. The first four rows are the methods from Assignment 1.
 
-Table: Objective value, average (min - max) over 200 runs.
+Table: Objective value, average (min - max) over 200 runs. The best average and the best solution on each instance are in bold.
 
 | Method | TSPA | TSPB |
 |---|---|---|
@@ -64,15 +64,15 @@ Table: Objective value, average (min - max) over 200 runs.
 | Nearest neighbor (any position) | 74347.0 (72328 - 77022) | 59475.5 (52915 - 66164) |
 | Greedy cycle | 73793.4 (72590 - 75281) | 59649.9 (55655 - 63734) |
 | NN (any position), 2-regret | 121360.3 (110950 - 135771) | 73649.8 (68761 - 79756) |
-| NN (any position), weighted | 75549.4 (72419 - 78504) | 55698.9 (50485 - 61406) |
+| NN (any position), weighted | 75549.4 (72419 - 78504) | **55698.9** (**50485** - 61406) |
 | Greedy cycle, 2-regret | 120378.8 (112806 - 128089) | 72484.8 (68150 - 77274) |
-| Greedy cycle, weighted | 73353.5 (72011 - 75532) | 57863.3 (52731 - 63370) |
+| Greedy cycle, weighted | **73353.5** (**72011** - 75532) | 57863.3 (52731 - 63370) |
 
-Table: Average time of one run in milliseconds.
+Table: Average time of one run in milliseconds, the fastest method in bold.
 
 | Method | TSPA | TSPB |
 |---|---|---|
-| Random solution | 0.005 | 0.005 |
+| Random solution | **0.005** | **0.005** |
 | Nearest neighbor (end only) | 0.019 | 0.018 |
 | Nearest neighbor (any position) | 0.715 | 0.722 |
 | Greedy cycle | 0.621 | 0.628 |
@@ -85,15 +85,15 @@ Table: Average time of one run in milliseconds.
 
 We also ran both kinds of insertion with `w` from 0 to 1 in steps of 0.1, again from all 200 starting nodes. The value `w = 0` is the plain greedy method and `w = 1` is the pure 2-regret.
 
-Table: Average objective over 200 runs for different weights of the regret.
+Table: Average objective over 200 runs for different weights of the regret, the best value in each column in bold.
 
 | w | NN any, TSPA | Greedy cycle, TSPA | NN any, TSPB | Greedy cycle, TSPB |
 |---|---|---|---|---|
-| 0.0 | 74347.0 | 73793.4 | 59475.5 | 59649.9 |
+| 0.0 | **74347.0** | 73793.4 | 59475.5 | 59649.9 |
 | 0.1 | 74494.4 | 73522.4 | 57429.6 | 59041.2 |
 | 0.2 | 74982.3 | 73829.5 | 57085.5 | 56385.1 |
 | 0.3 | 75303.8 | 73344.1 | 56435.3 | 55982.4 |
-| 0.4 | 74872.4 | 73277.4 | 53690.8 | 55548.3 |
+| 0.4 | 74872.4 | **73277.4** | **53690.8** | **55548.3** |
 | 0.5 | 75549.4 | 73353.5 | 55698.9 | 57863.3 |
 | 0.6 | 76189.1 | 73980.1 | 54127.3 | 57808.9 |
 | 0.7 | 76454.1 | 74378.2 | 54878.5 | 58969.5 |

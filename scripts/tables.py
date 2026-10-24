@@ -1,6 +1,10 @@
 from common import ROOT, assignment_arg, label, load_best, load_summary
 
 
+def bold_if(text, cond):
+    return f"**{text}**" if cond else text
+
+
 def table(df, value):
     instances = list(dict.fromkeys(df.instance))
     lines = ["| Method | " + " | ".join(instances) + " |",
@@ -15,14 +19,20 @@ def table(df, value):
 def main():
     a = assignment_arg()
     df = load_summary(a)
+    best_avg = df.groupby("instance")["avg"].min()
+    best_min = df.groupby("instance")["min"].min()
+    fastest = df.groupby("instance")["avg_ms"].min()
     out = [
         "Objective value: average (min - max)",
         "",
-        table(df, lambda r: f"{r['avg']:.1f} ({r['min']} - {r['max']})"),
+        # best average and best single solution in each instance are in bold
+        table(df, lambda r: f"{bold_if(f'{r.avg:.1f}', r.avg == best_avg[r.instance])} "
+                            f"({bold_if(r['min'], r['min'] == best_min[r.instance])} - {r['max']})"),
         "",
         "Average time of one run [ms]",
         "",
-        table(df, lambda r: f"{r['avg_ms']:.3f}"),
+        table(df, lambda r: bold_if(f"{r.avg_ms:.3f}",
+                                    f"{r.avg_ms:.3f}" == f"{fastest[r.instance]:.3f}")),
         "",
     ]
     for r in df.itertuples():

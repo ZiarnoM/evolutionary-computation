@@ -7,15 +7,15 @@ Objective value: average (min - max)
 | Nearest neighbor (any position) | 74347.0 (72328 - 77022) | 59475.5 (52915 - 66164) |
 | Greedy cycle | 73793.4 (72590 - 75281) | 59649.9 (55655 - 63734) |
 | NN (any position), 2-regret | 121360.3 (110950 - 135771) | 73649.8 (68761 - 79756) |
-| NN (any position), weighted | 75549.4 (72419 - 78504) | 55698.9 (50485 - 61406) |
+| NN (any position), weighted | 75549.4 (72419 - 78504) | **55698.9** (**50485** - 61406) |
 | Greedy cycle, 2-regret | 120378.8 (112806 - 128089) | 72484.8 (68150 - 77274) |
-| Greedy cycle, weighted | 73353.5 (72011 - 75532) | 57863.3 (52731 - 63370) |
+| Greedy cycle, weighted | **73353.5** (**72011** - 75532) | 57863.3 (52731 - 63370) |
 
 Average time of one run [ms]
 
 | Method | TSPA | TSPB |
 |---|---|---|
-| Random solution | 0.005 | 0.005 |
+| Random solution | **0.005** | **0.005** |
 | Nearest neighbor (end only) | 0.019 | 0.018 |
 | Nearest neighbor (any position) | 0.715 | 0.722 |
 | Greedy cycle | 0.621 | 0.628 |
