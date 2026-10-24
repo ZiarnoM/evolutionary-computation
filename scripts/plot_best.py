@@ -24,7 +24,7 @@ def plot(a, instance, method, obj, start, out_dir):
     fig, ax = plt.subplots(figsize=(9, 5.6))
     ax.scatter(nodes.x, nodes.y, s=size, color="#d6d6d6", zorder=1)
     # NN methods build a path and close it at the end, so that edge is drawn dashed
-    nn = method in ("nn_end", "nn_any")
+    nn = method.startswith("nn")
     edges = sol if nn else sol + sol[:1]
     ax.plot(nodes.x.iloc[edges], nodes.y.iloc[edges], color="#555555", lw=1, zorder=2)
     if nn:

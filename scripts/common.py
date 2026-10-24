@@ -10,6 +10,10 @@ LABELS = {
     "nn_end": "Nearest neighbor (end only)",
     "nn_any": "Nearest neighbor (any position)",
     "greedy_cycle": "Greedy cycle",
+    "nn_any_regret": "NN (any position), 2-regret",
+    "nn_any_weighted": "NN (any position), weighted",
+    "greedy_cycle_regret": "Greedy cycle, 2-regret",
+    "greedy_cycle_weighted": "Greedy cycle, weighted",
 }
 
 
