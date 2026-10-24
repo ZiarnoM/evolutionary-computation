@@ -76,3 +76,7 @@ four are in `src/methods/regret.cpp`. The methods from assignment 1 are run agai
 tables include them. Besides the files described above, `results/assignment2/weights.csv`
 has min, max and avg for regret weights from 0 to 1 (0 is plain greedy, 1 is pure regret),
 plotted in `reports/assignment2/weights.png`.
+
+`venv/bin/python scripts/checker.py N` pastes every best solution of assignment N into
+column F of a copy of the solution checker, recalculates it in Numbers (macOS only) and
+compares the result with `summary.csv`.

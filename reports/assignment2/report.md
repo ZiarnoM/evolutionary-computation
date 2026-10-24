@@ -163,7 +163,7 @@ Greedy cycle, weighted, TSPB, objective 52731:
 
 Every solution was validated in the program as described above, using the same objective function that was tested against the example solutions in the checker in Assignment 1.
 
-**TODO: paste the eight solutions above into column F of the checker and confirm the values.** The best solutions listed above were also pasted into column F of the solution checker, and for all eight of them the checker gives the same objective values as in the table.
+The best solutions of all eight methods on both instances, including the methods from Assignment 1, were also pasted into column F of a copy of the solution checker (by a script, `scripts/checker.py`, which opens the copy in Numbers and reads the total from cell K2). For all sixteen solutions the checker gives the same objective values as in the table.
 
 # Source code
 
