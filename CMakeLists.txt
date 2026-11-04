@@ -10,7 +10,11 @@ if(NOT CMAKE_BUILD_TYPE)
 endif()
 set(CMAKE_CXX_FLAGS_RELEASE "-O2")
 
-add_compile_options(-Wall -Wextra)
+if(MSVC)
+    add_compile_options(/W4)
+else()
+    add_compile_options(-Wall -Wextra)
+endif()
 
 file(GLOB CORE_SRC CONFIGURE_DEPENDS src/core/*.cpp)
 file(GLOB METHOD_SRC CONFIGURE_DEPENDS src/methods/*.cpp)

@@ -15,24 +15,42 @@
 
 namespace fs = std::filesystem;
 
-static std::vector<Method> methods_for(int assignment) {
+static std::vector<Method> methods_for(int assignment)
+{
     std::vector<Method> methods = {{"random", random_solution},
                                    {"nn_end", nn_end},
                                    {"nn_any", nn_any},
                                    {"greedy_cycle", greedy_cycle}};
     if (assignment == 1)
         return methods;
-    if (assignment == 2) {
+    if (assignment == 2)
+    {
         methods.push_back({"nn_any_regret", nn_any_regret});
         methods.push_back({"nn_any_weighted", nn_any_weighted});
         methods.push_back({"greedy_cycle_regret", greedy_cycle_regret});
         methods.push_back({"greedy_cycle_weighted", greedy_cycle_weighted});
         return methods;
     }
+    if (assignment == 3)
+    {
+        methods.push_back({"steepest_nodes_random", steepest_nodes_random});
+        methods.push_back({"steepest_nodes_greedy", steepest_nodes_greedy});
+        methods.push_back({"steepest_edges_random", steepest_edges_random});
+        methods.push_back({"steepest_edges_greedy", steepest_edges_greedy});
+
+        methods.push_back({"greedy_nodes_random", greedy_nodes_random});
+        methods.push_back({"greedy_nodes_greedy", greedy_nodes_greedy});
+        methods.push_back({"greedy_edges_random", greedy_edges_random});
+        methods.push_back({"greedy_edges_greedy", greedy_edges_greedy});
+
+        return methods;
+    }
+
     return {};
 }
 
-struct Stats {
+struct Stats
+{
     Result best;
     int best_start = -1, worst = 0;
     double avg = 0, total_ms = 0;
@@ -40,10 +58,12 @@ struct Stats {
 };
 
 // Runs the method from every node and checks each solution. Exits on an invalid one.
-static Stats run_all(const Instance& inst, const Method& m) {
+static Stats run_all(const Instance &inst, const Method &m)
+{
     Stats st;
     long long sum = 0;
-    for (int s = 0; s < inst.n; s++) {
+    for (int s = 0; s < inst.n; s++)
+    {
         auto t0 = std::chrono::steady_clock::now();
         Result r = m.run(inst, s);
         auto t1 = std::chrono::steady_clock::now();
@@ -53,13 +73,15 @@ static Stats run_all(const Instance& inst, const Method& m) {
         if (err.empty() && r.obj != objective(inst, r.sol))
             err = "objective mismatch: method says " + std::to_string(r.obj) +
                   ", recomputed " + std::to_string(objective(inst, r.sol));
-        if (!err.empty()) {
+        if (!err.empty())
+        {
             std::cerr << inst.name << " " << m.name << " start " << s << ": " << err << "\n";
             std::exit(1);
         }
 
         st.objs.push_back(r.obj);
-        if (st.best_start < 0 || r.obj < st.best.obj) {
+        if (st.best_start < 0 || r.obj < st.best.obj)
+        {
             st.best = r;
             st.best_start = s;
         }
@@ -70,20 +92,26 @@ static Stats run_all(const Instance& inst, const Method& m) {
     return st;
 }
 
-int main(int argc, char** argv) {
+int main(int argc, char **argv)
+{
     int assignment = 1;
-    for (int i = 1; i < argc; i++) {
+    for (int i = 1; i < argc; i++)
+    {
         std::string arg = argv[i];
-        if (arg == "--assignment" && i + 1 < argc) {
+        if (arg == "--assignment" && i + 1 < argc)
+        {
             assignment = std::stoi(argv[++i]);
-        } else {
+        }
+        else
+        {
             std::cerr << "usage: " << argv[0] << " [--assignment N]\n";
             return 1;
         }
     }
 
     std::vector<Method> methods = methods_for(assignment);
-    if (methods.empty()) {
+    if (methods.empty())
+    {
         std::cerr << "unknown assignment " << assignment << "\n";
         return 1;
     }
@@ -100,9 +128,11 @@ int main(int argc, char** argv) {
 
     std::printf("%-5s %-22s %8s %8s %10s %10s\n", "inst", "method", "min", "max", "avg",
                 "ms/run");
-    for (std::string name : {"TSPA", "TSPB"}) {
+    for (std::string name : {"TSPA", "TSPB"})
+    {
         Instance inst = load_instance(root + "/data/" + name + ".csv");
-        for (const Method& m : methods) {
+        for (const Method &m : methods)
+        {
             Stats st = run_all(inst, m);
             for (int s = 0; s < inst.n; s++)
                 runs << name << "," << m.name << "," << s << "," << st.objs[s] << "\n";
@@ -119,17 +149,22 @@ int main(int argc, char** argv) {
     }
 
     // weight of the regret in the weighted criterion, 0 is plain greedy, 1 is pure regret
-    if (assignment == 2) {
+    if (assignment == 2)
+    {
         std::ofstream weights(out / "weights.csv");
         weights << std::fixed << std::setprecision(4);
         weights << "instance,base,w,min,max,avg\n";
-        for (std::string name : {"TSPA", "TSPB"}) {
+        for (std::string name : {"TSPA", "TSPB"})
+        {
             Instance inst = load_instance(root + "/data/" + name + ".csv");
-            for (bool cycle : {false, true}) {
+            for (bool cycle : {false, true})
+            {
                 std::string base = cycle ? "greedy_cycle" : "nn_any";
-                for (int i = 0; i <= 10; i++) {
+                for (int i = 0; i <= 10; i++)
+                {
                     double w = i / 10.0;
-                    Method m{base, [cycle, w](const Instance& in, int s) {
+                    Method m{base, [cycle, w](const Instance &in, int s)
+                             {
                                  return regret_insertion(in, s, cycle, w);
                              }};
                     Stats st = run_all(inst, m);
