@@ -77,6 +77,16 @@ tables include them. Besides the files described above, `results/assignment2/wei
 has min, max and avg for regret weights from 0 to 1 (0 is plain greedy, 1 is pure regret),
 plotted in `reports/assignment2/weights.png`.
 
+## Assignment 3: Local search
+
+```
+./build/run --assignment 3
+venv/bin/python scripts/plot_best.py 3
+venv/bin/python scripts/tables.py 3
+```
+Methods: Local search - greedy and steepest, with initial solution random or based on
+greedy heuristics, with intra-route moves of swapping nodes or edges
+
 `venv/bin/python scripts/checker.py N` pastes every best solution of assignment N into
 column F of a copy of the solution checker, recalculates it in Numbers (macOS only) and
 compares the result with `summary.csv`.
