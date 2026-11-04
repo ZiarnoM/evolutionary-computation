@@ -36,6 +36,25 @@ Two types of starting solutions were tested:
 
 This gives eight configurations combining the two search strategies, two intra-route move types, and two starting solution types.
 
+### Delta Calculation
+
+Following formulas were used to calculate delatas:
+
+**1. Nodes exchange (intra-route)**
+
+`Delta = new edge costs - old edge costs`
+
+**2. Edges exchange (2-opt)**
+
+`Delta = d(a,c) + d(b,d) - d(a,b) - d(c,d)`
+
+**3. Inter-route exchange**
+
+`Delta = d(prev,x) + d(x,next) - d(prev,v) - d(v,next) + c(x) - c(v)`
+
+A move is accepted if `Delta < 0`.
+
+### Pseudocode
 Following procedure was used:
 
 ```
@@ -278,7 +297,7 @@ The best solutions of all eight methods on both instances, were also pasted into
 
 <https://github.com/ZiarnoM/evolutionary-computation/tree/assignment-3>
 
-Both new criteria are in `src/methods/local_search.cpp`. The common code is in `src/core` and the experiment, including the run with different weights, is in `src/main.cpp`. Plots and tables are made by the Python scripts in `scripts`.
+Both new criteria are in `src/methods/local_search.cpp`. The common code is in `src/core` and the experiment, is in `src/main.cpp`. Plots and tables are made by the Python scripts in `scripts`.
 
 # Conclusions
 
