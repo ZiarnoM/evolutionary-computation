@@ -1,0 +1,15 @@
+instance,base,candidate_count,min,max,avg,min_ms,max_ms,avg_ms
+TSPA,steepest_edges_random_candidate,4,86718,101449,93480.9800,7.1772,14.7401,9.5622
+TSPA,steepest_edges_random_candidate,6,80450,92402,85754.0550,11.2378,62.5392,13.7190
+TSPA,steepest_edges_random_candidate,8,78346,88904,82876.0400,14.1043,21.0409,16.7709
+TSPA,steepest_edges_random_candidate,10,76418,87573,80241.7400,19.0465,65.4763,23.4898
+TSPA,steepest_edges_random_candidate,12,75492,85912,79264.5400,24.3219,36.2135,28.0741
+TSPA,steepest_edges_random_candidate,15,74237,82356,77512.8450,30.6056,42.0454,36.3629
+TSPA,steepest_edges_random_candidate,20,73735,80913,76476.8000,43.7903,58.9072,50.6646
+TSPB,steepest_edges_random_candidate,4,54756,64677,58441.1950,8.7903,14.6220,10.8796
+TSPB,steepest_edges_random_candidate,6,51143,57479,54125.5700,13.8906,22.1102,17.0235
+TSPB,steepest_edges_random_candidate,8,50316,56611,53332.2600,18.9465,29.5185,21.8687
+TSPB,steepest_edges_random_candidate,10,50644,55637,52740.9550,25.2410,75.7375,29.6887
+TSPB,steepest_edges_random_candidate,12,50400,54965,52531.6250,29.6952,40.6586,35.6838
+TSPB,steepest_edges_random_candidate,15,50322,55309,52505.9600,39.2291,63.4144,46.2271
+TSPB,steepest_edges_random_candidate,20,49789,54908,52531.4800,53.1736,70.0414,61.6378

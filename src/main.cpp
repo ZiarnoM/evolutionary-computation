@@ -8,6 +8,7 @@
 #include <iostream>
 #include <string>
 #include <vector>
+#include <limits>
 
 #include "core/instance.h"
 #include "core/solution.h"
@@ -45,6 +46,11 @@ static std::vector<Method> methods_for(int assignment)
 
         return methods;
     }
+    if (assignment == 4)
+    {
+        methods.push_back({"steepest_edges_10candidate", steepest_edges_random_10candidate});
+        return methods;
+    }
 
     return {};
 }
@@ -53,7 +59,7 @@ struct Stats
 {
     Result best;
     int best_start = -1, worst = 0;
-    double avg = 0, total_ms = 0;
+    double avg = 0, total_ms = 0, worst_ms = 0, best_ms = std::numeric_limits<double>::infinity();
     std::vector<int> objs;
 };
 
@@ -67,7 +73,10 @@ static Stats run_all(const Instance &inst, const Method &m)
         auto t0 = std::chrono::steady_clock::now();
         Result r = m.run(inst, s);
         auto t1 = std::chrono::steady_clock::now();
-        st.total_ms += std::chrono::duration<double, std::milli>(t1 - t0).count();
+        double ms = std::chrono::duration<double, std::milli>(t1 - t0).count();
+        st.total_ms += ms;
+        st.worst_ms = std::max(st.worst_ms, ms);
+        st.best_ms = std::min(st.best_ms, ms);
 
         std::string err = validate(inst, r.sol);
         if (err.empty() && r.obj != objective(inst, r.sol))
@@ -123,7 +132,7 @@ int main(int argc, char **argv)
     std::ofstream summary(out / "summary.csv");
     std::ofstream runs(out / "runs.csv");
     summary << std::fixed << std::setprecision(4);
-    summary << "instance,method,min,max,avg,best_start,total_ms,avg_ms\n";
+    summary << "instance,method,min,max,avg,best_start,total_ms,min_ms,max_ms,avg_ms\n";
     runs << "instance,method,start,objective\n";
 
     std::printf("%-5s %-22s %8s %8s %10s %10s\n", "inst", "method", "min", "max", "avg",
@@ -138,7 +147,7 @@ int main(int argc, char **argv)
                 runs << name << "," << m.name << "," << s << "," << st.objs[s] << "\n";
             summary << name << "," << m.name << "," << st.best.obj << "," << st.worst << ","
                     << st.avg << "," << st.best_start << "," << st.total_ms << ","
-                    << st.total_ms / inst.n << "\n";
+                    << st.best_ms << "," << st.worst_ms << "," << st.total_ms / inst.n << "\n";
             std::ofstream f(out / "best" / (name + "_" + m.name + ".txt"));
             for (int v : st.best.sol)
                 f << v << "\n";
@@ -171,6 +180,26 @@ int main(int argc, char **argv)
                     weights << name << "," << base << "," << w << "," << st.best.obj << ","
                             << st.worst << "," << st.avg << "\n";
                 }
+            }
+        }
+    }
+    if (assignment == 4)
+    {
+        std::ofstream weights(out / "candidates.csv");
+        weights << std::fixed << std::setprecision(4);
+        weights << "instance,base,candidate_count,min,max,avg,min_ms,max_ms,avg_ms\n";
+        for (std::string name : {"TSPA", "TSPB"})
+        {
+            Instance inst = load_instance(root + "/data/" + name + ".csv");
+            for (int candidate_count : {4, 6, 8, 10, 12, 14, 16, 18, 20})
+            {
+                Method m{"steepest_edges_random_candidate", [candidate_count](const Instance &in, int s)
+                         {
+                             return steepest_edges_random_candidate(in, s, candidate_count);
+                         }};
+                Stats st = run_all(inst, m);
+                weights << name << "," << "steepest_edges_random_candidate" << "," << candidate_count
+                        << "," << st.best.obj << "," << st.worst << "," << st.avg << "," << st.best_ms << "," << st.worst_ms << "," << st.total_ms / inst.n << "\n";
             }
         }
     }

@@ -14,6 +14,7 @@ LABELS = {
     "nn_any_weighted": "NN (any position), weighted",
     "greedy_cycle_regret": "Greedy cycle, 2-regret",
     "greedy_cycle_weighted": "Greedy cycle, weighted",
+    "steepest_edges_10candidate": "Steepest edges (10 candidates)"
 }
 
 

@@ -42,3 +42,6 @@ Result greedy_nodes_random(const Instance &inst, int start);
 Result greedy_nodes_greedy(const Instance &inst, int start);
 Result greedy_edges_random(const Instance &inst, int start);
 Result greedy_edges_greedy(const Instance &inst, int start);
+
+Result steepest_edges_random_candidate(const Instance &inst, int start, int candidate_count);
+Result steepest_edges_random_10candidate(const Instance &inst, int start);

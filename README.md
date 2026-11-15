@@ -87,6 +87,16 @@ venv/bin/python scripts/tables.py 3
 Methods: Local search - greedy and steepest, with initial solution random or based on
 greedy heuristics, with intra-route moves of swapping nodes or edges
 
+## Assignment 4: Candidate moves in Local Search
+
+```
+./build/run --assignment 4
+venv/bin/python scripts/plot_best.py 4
+venv/bin/python scripts/plot_candidate_sizes.py
+venv/bin/python scripts/tables.py 4
+```
+Methods: Candidate moves for local search
+
 `venv/bin/python scripts/checker.py N` pastes every best solution of assignment N into
 column F of a copy of the solution checker, recalculates it in Numbers (macOS only) and
 compares the result with `summary.csv`.
