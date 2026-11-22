@@ -1,6 +1,5 @@
 #include <algorithm>
-#include <set>
-#include <tuple>
+#include <functional>
 #include <vector>
 
 #include "methods/methods.h"
@@ -12,10 +11,7 @@ namespace {
 // Exchange (type 1): replace v (between a and c) with the unselected node u, here b = v, d = u.
 struct Move {
     int delta, type, a, b, c, d;
-    bool operator<(const Move& o) const {
-        return std::tie(delta, type, a, b, c, d) <
-               std::tie(o.delta, o.type, o.a, o.b, o.c, o.d);
-    }
+    bool operator>(const Move& o) const { return delta > o.delta; }
 };
 
 struct Tour {
@@ -42,7 +38,34 @@ struct Tour {
 class MoveList {
     const Instance& inst;
     Tour& t;
-    std::set<Move> lm;
+    // Moves from a full evaluation are sorted once and read with a cursor, moves added
+    // later go to a binary heap. The best move is the better of the two tops.
+    std::vector<Move> sorted, heap, later;
+    size_t cur = 0;
+    bool bulk = false;
+
+    void push(const Move& m) {
+        if (bulk) {
+            sorted.push_back(m);
+            return;
+        }
+        heap.push_back(m);
+        std::push_heap(heap.begin(), heap.end(), std::greater<Move>());
+    }
+
+    bool pop(Move& m) {
+        bool from_heap = !heap.empty() && (cur == sorted.size() || sorted[cur] > heap.front());
+        if (from_heap) {
+            std::pop_heap(heap.begin(), heap.end(), std::greater<Move>());
+            m = heap.back();
+            heap.pop_back();
+        } else if (cur < sorted.size()) {
+            m = sorted[cur++];
+        } else {
+            return false;
+        }
+        return true;
+    }
 
 public:
     MoveList(const Instance& inst, Tour& t) : inst(inst), t(t) {}
@@ -54,10 +77,7 @@ public:
         int delta = D[a][c] + D[b][d] - D[a][b] - D[c][d];
         if (delta >= 0)
             return;
-        // the same move can be written in four ways, keep the smallest one
-        std::tuple<int, int, int, int> m = std::min({std::make_tuple(a, b, c, d), std::make_tuple(c, d, a, b),
-                                                     std::make_tuple(b, a, d, c), std::make_tuple(d, c, b, a)});
-        lm.insert({delta, 0, std::get<0>(m), std::get<1>(m), std::get<2>(m), std::get<3>(m)});
+        push({delta, 0, a, b, c, d});
     }
 
     void add_exchange(int v, int u) {
@@ -65,25 +85,45 @@ public:
         auto& D = inst.dist;
         int delta = D[p][u] + D[u][s] - D[p][v] - D[v][s] + inst.cost[u] - inst.cost[v];
         if (delta < 0)
-            lm.insert({delta, 1, std::min(p, s), v, std::max(p, s), u});
+            push({delta, 1, p, v, s, u});
     }
 
     // edge a->b against every other edge, also with the other edge inverted
     void edge_moves(int a, int b) {
-        for (int c : t.sol) {
-            int d = t.next(c);
-            add_2opt(a, b, c, d);
-            add_2opt(a, b, d, c);
+        const std::vector<int>&Da = inst.dist[a], &Db = inst.dist[b];
+        int ab = Da[b];
+        for (int i = 0; i < t.k; i++) {
+            int c = t.sol[i], d = t.sol[i + 1 < t.k ? i + 1 : 0];
+            if (c == a || c == b || d == a || d == b)
+                continue;
+            int cd = inst.dist[c][d];
+            int d1 = Da[c] + Db[d] - ab - cd, d2 = Da[d] + Db[c] - ab - cd;
+            if (d1 < 0)
+                push({d1, 0, a, b, c, d});
+            if (d2 < 0)
+                push({d2, 0, a, b, d, c});
         }
     }
 
     void node_moves(int v) {
-        for (int u = 0; u < inst.n; u++)
-            if (t.pos[u] < 0)
-                add_exchange(v, u);
+        int p = t.prev(v), s = t.next(v);
+        auto& D = inst.dist;
+        int base = -D[p][v] - D[v][s] - inst.cost[v];
+        for (int u = 0; u < inst.n; u++) {
+            if (t.pos[u] >= 0)
+                continue;
+            int delta = base + D[p][u] + D[u][s] + inst.cost[u];
+            if (delta < 0)
+                push({delta, 1, p, v, s, u});
+        }
     }
 
     void all_moves() {
+        sorted.erase(sorted.begin(), sorted.begin() + cur);
+        sorted.insert(sorted.end(), heap.begin(), heap.end());
+        heap.clear();
+        cur = 0;
+        bulk = true;
         for (int i = 0; i < t.k; i++)
             for (int j = i + 2; j < t.k; j++) {
                 int a = t.sol[i], b = t.sol[i + 1], c = t.sol[j], d = t.sol[(j + 1) % t.k];
@@ -92,6 +132,8 @@ public:
             }
         for (int v : t.sol)
             node_moves(v);
+        bulk = false;
+        std::sort(sorted.begin(), sorted.end(), [](const Move& x, const Move& y) { return x.delta < y.delta; });
     }
 
     // 0 - remove the move, 1 - apply it, 2 - keep it for later
@@ -147,21 +189,23 @@ public:
 
     // applies the best applicable move from the list, false if there is none
     bool step(int& obj) {
-        for (auto it = lm.begin(); it != lm.end();) {
-            int r = check(*it);
+        bool found = false;
+        Move m;
+        while (pop(m)) {
+            int r = check(m);
             if (r == 2) {
-                ++it;
-                continue;
-            }
-            Move m = *it;
-            it = lm.erase(it);
-            if (r == 1) {
+                later.push_back(m);
+            } else if (r == 1) {
                 apply(m);
                 obj += m.delta;
-                return true;
+                found = true;
+                break;
             }
         }
-        return false;
+        for (const Move& m : later)
+            push(m);
+        later.clear();
+        return found;
     }
 };
 

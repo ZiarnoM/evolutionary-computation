@@ -113,4 +113,7 @@ venv/bin/python scripts/checker.py 5
 Steepest local search (2-opt and node exchange, random start) with a list of improving
 moves kept between iterations, in `src/methods/move_list.cpp`. The baseline steepest
 search from assignment 3 and the 10 candidate moves from assignment 4 are run again for
-comparison.
+comparison. Both were rewritten for this assignment so they don't rebuild the whole list
+of moves in every iteration, and the candidate lists now use the distance only. The code
+used in the reports of assignments 3 and 4 is under the tags `assignment-3` and
+`assignment-4`.

@@ -1,347 +1,167 @@
 #include <algorithm>
-#include <numeric>
 #include <random>
 #include <vector>
 
 #include "methods/methods.h"
 
-namespace
-{
-    enum class SearchType
-    {
-        STEEPEST,
-        GREEDY
-    };
+namespace {
 
-    enum class IntraMove
-    {
-        NODES,
-        EDGES
-    };
+// Moves: type 0 - replace sol[i] by the unselected node j, 1 - swap nodes at positions
+// i < j, 2 - 2-opt on edges (sol[i], sol[i+1]) and (sol[j], sol[j+1]), i < j.
+struct LS {
+    const Instance& inst;
+    Solution& sol;
+    std::vector<char> used;
+    int k;
 
-    enum class MoveType
-    {
-        INTER,
-        INTRA_NODES,
-        INTRA_EDGES
-    };
+    int at(int i) const { return sol[(i + k) % k]; }
+    int d(int a, int b) const { return inst.dist[a][b]; }
 
-    struct Move
-    {
-        MoveType type;
-        int i;
-        int j;
-    };
-
-    // Exchange two selected nodes.
-    int nodes_exchange_delta(
-        const Instance &inst,
-        const Solution &sol,
-        int i,
-        int j)
-    {
-        int k = static_cast<int>(sol.size());
-
-        std::vector<int> edges = {
-            (i - 1 + k) % k,
-            i,
-            (j - 1 + k) % k,
-            j};
-
-        std::sort(edges.begin(), edges.end());
-        edges.erase(
-            std::unique(edges.begin(), edges.end()),
-            edges.end());
-
-        auto vertex = [&](int pos)
-        {
-            if (pos == i)
-                return sol[j];
-            if (pos == j)
-                return sol[i];
-            return sol[pos];
-        };
-
-        int delta = 0;
-
-        for (int e : edges)
-        {
-            int next = (e + 1) % k;
-
-            delta -= inst.dist[sol[e]][sol[next]];
-            delta += inst.dist[vertex(e)][vertex(next)];
+    int delta(int type, int i, int j) const {
+        if (type == 0) {
+            int p = at(i - 1), v = sol[i], s = at(i + 1);
+            return d(p, j) + d(j, s) - d(p, v) - d(v, s) + inst.cost[j] - inst.cost[v];
         }
-
-        return delta;
+        if (type == 2) {
+            int a = sol[i], b = at(i + 1), c = sol[j], e = at(j + 1);
+            return d(a, c) + d(b, e) - d(a, b) - d(c, e);
+        }
+        // neighbors: the edge between them does not change
+        if (j == i + 1 || (i == 0 && j == k - 1)) {
+            if (i == 0 && j == k - 1)
+                std::swap(i, j);
+            int p = at(i - 1), a = sol[i], b = sol[j], s = at(j + 1);
+            return d(p, b) + d(a, s) - d(p, a) - d(b, s);
+        }
+        int pa = at(i - 1), a = sol[i], na = at(i + 1);
+        int pb = at(j - 1), b = sol[j], nb = at(j + 1);
+        return d(pa, b) + d(b, na) + d(pb, a) + d(a, nb) - d(pa, a) - d(a, na) - d(pb, b) - d(b, nb);
     }
 
-    // Reverse the segment between two edges (2-opt).
-    // Assumes symmetric distances.
-    int edges_exchange_delta(
-        const Instance &inst,
-        const Solution &sol,
-        int i,
-        int j)
-    {
-        int k = static_cast<int>(sol.size());
-
-        int a = sol[i];
-        int b = sol[(i + 1) % k];
-        int c = sol[j];
-        int d = sol[(j + 1) % k];
-
-        return inst.dist[a][c] + inst.dist[b][d] - inst.dist[a][b] - inst.dist[c][d];
-    }
-
-    // Exchange one selected node with one unselected node.
-    int inter_exchange_delta(
-        const Instance &inst,
-        const Solution &sol,
-        int i,
-        int candidate)
-    {
-        int k = static_cast<int>(sol.size());
-
-        int prev = sol[(i - 1 + k) % k];
-        int curr = sol[i];
-        int next = sol[(i + 1) % k];
-
-        return inst.dist[prev][candidate] + inst.dist[candidate][next] - inst.dist[prev][curr] - inst.dist[curr][next] + inst.cost[candidate] - inst.cost[curr];
-    }
-
-    void apply_move(
-        const Move &move,
-        Solution &sol,
-        std::vector<bool> &used)
-    {
-        if (move.type == MoveType::INTER)
-        {
-            int removed = sol[move.i];
-            int inserted = move.j;
-
-            sol[move.i] = inserted;
-
-            used[removed] = false;
-            used[inserted] = true;
-        }
-        else if (move.type == MoveType::INTRA_NODES)
-        {
-            std::swap(sol[move.i], sol[move.j]);
-        }
-        else
-        {
-            // 2-opt: reverse the segment (i+1 ... j).
-            std::reverse(
-                sol.begin() + move.i + 1,
-                sol.begin() + move.j + 1);
+    void apply(int type, int i, int j) {
+        if (type == 0) {
+            used[sol[i]] = 0;
+            used[j] = 1;
+            sol[i] = j;
+        } else if (type == 1) {
+            std::swap(sol[i], sol[j]);
+        } else {
+            std::reverse(sol.begin() + i + 1, sol.begin() + j + 1);
         }
     }
 
-    std::vector<Move> generate_moves(
-        int n,
-        int k,
-        IntraMove intra)
-    {
-        std::vector<Move> moves;
+    bool valid_2opt(int i, int j) const { return j > i + 1 && !(i == 0 && j == k - 1); }
+};
 
-        // Inter-route moves.
-        for (int i = 0; i < k; ++i)
-        {
-            for (int j = 0; j < n; ++j)
-            {
-                moves.push_back({MoveType::INTER, i, j});
-            }
-        }
+}  // namespace
 
-        // Intra-route moves.
-        for (int i = 0; i < k; ++i)
-        {
-            for (int j = i + 1; j < k; ++j)
-            {
-                if (intra == IntraMove::NODES)
-                {
-                    moves.push_back({MoveType::INTRA_NODES, i, j});
-                }
-                else
-                {
-                    // Exclude adjacent edges and the cycle boundary pair.
-                    if (j == i + 1 || (i == 0 && j == k - 1))
-                        continue;
-
-                    moves.push_back({MoveType::INTRA_EDGES, i, j});
-                }
-            }
-        }
-
-        return moves;
-    }
-
-} // namespace
-
-Result local_search(
-    const Instance &inst,
-    int start,
-    SearchType search,
-    IntraMove intra,
-    bool use_greedy_start)
-{
-    int n = inst.n;
-    int k = inst.select_count();
-
-    // Build initial solution.
+Result local_search(const Instance& inst, int start, bool steepest, bool edges, bool greedy_start) {
     Result res;
-
-    if (use_greedy_start)
-    {
-        // Compare all construction heuristics using the same random start.
-        std::vector<Result> candidates = {
-            nn_end(inst, start),
-            nn_any(inst, start),
-            greedy_cycle(inst, start),
-            regret_insertion(inst, start, true, 0.0),
-            regret_insertion(inst, start, true, 1.0),
-            nn_any_regret(inst, start),
-            nn_any_weighted(inst, start),
-            greedy_cycle_regret(inst, start),
-            greedy_cycle_weighted(inst, start)};
-
-        res = *std::min_element(
-            candidates.begin(),
-            candidates.end(),
-            [](const Result &a, const Result &b)
-            {
-                return a.obj < b.obj;
-            });
-    }
-    else
-    {
-        // Random starting solution.
+    if (greedy_start) {
+        // best of all construction heuristics from the same starting node
+        std::vector<Result> starts = {nn_end(inst, start),
+                                      nn_any(inst, start),
+                                      greedy_cycle(inst, start),
+                                      regret_insertion(inst, start, true, 0.0),
+                                      regret_insertion(inst, start, true, 1.0),
+                                      nn_any_regret(inst, start),
+                                      nn_any_weighted(inst, start),
+                                      greedy_cycle_regret(inst, start),
+                                      greedy_cycle_weighted(inst, start)};
+        res = *std::min_element(starts.begin(), starts.end(),
+                                [](const Result& a, const Result& b) { return a.obj < b.obj; });
+    } else {
         res = random_solution(inst, start);
     }
 
-    // Track selected nodes.
-    std::vector<bool> used(n, false);
-
+    int n = inst.n;
+    LS ls{inst, res.sol, std::vector<char>(n, 0), (int)res.sol.size()};
     for (int v : res.sol)
-        used[v] = true;
-
-    // Random generator for greedy neighborhood traversal.
+        ls.used[v] = 1;
+    int k = ls.k, intra = edges ? 2 : 1;
     std::mt19937 rng(42 + start);
 
-    while (true)
-    {
-        std::vector<Move> moves = generate_moves(n, k, intra);
-
-        // Randomize the complete neighborhood.
-        if (search == SearchType::GREEDY)
-        {
-            std::shuffle(moves.begin(), moves.end(), rng);
-        }
-
-        bool found = false;
-        int best_delta = 0;
-        Move best_move{};
-
-        for (const Move &move : moves)
-        {
-            int delta;
-
-            if (move.type == MoveType::INTER)
-            {
-                // Candidate must be currently unselected.
-                if (used[move.j])
+    while (true) {
+        int best = 0, bt = -1, bi = 0, bj = 0;
+        if (steepest) {
+            // same deltas as in LS::delta, written out so the parts fixed for i are computed once
+            auto& D = inst.dist;
+            for (int i = 0; i < k; i++) {
+                int p = ls.at(i - 1), v = res.sol[i], s = ls.at(i + 1);
+                int base = -D[p][v] - D[v][s] - inst.cost[v];
+                for (int j = 0; j < n; j++) {
+                    if (ls.used[j])
+                        continue;
+                    int x = base + D[p][j] + D[j][s] + inst.cost[j];
+                    if (x < best)
+                        best = x, bt = 0, bi = i, bj = j;
+                }
+            }
+            for (int i = 0; i < k; i++) {
+                if (!edges) {
+                    for (int j = i + 1; j < k; j++) {
+                        int x = ls.delta(1, i, j);
+                        if (x < best)
+                            best = x, bt = 1, bi = i, bj = j;
+                    }
                     continue;
-
-                delta = inter_exchange_delta(
-                    inst, res.sol, move.i, move.j);
+                }
+                int a = res.sol[i], b = ls.at(i + 1), ab = D[a][b];
+                for (int j = i + 2; j < k - (i == 0); j++) {
+                    int c = res.sol[j], e = ls.at(j + 1);
+                    int x = D[a][c] + D[b][e] - ab - D[c][e];
+                    if (x < best)
+                        best = x, bt = 2, bi = i, bj = j;
+                }
             }
-            else if (move.type == MoveType::INTRA_NODES)
-            {
-                delta = nodes_exchange_delta(
-                    inst, res.sol, move.i, move.j);
-            }
-            else
-            {
-                delta = edges_exchange_delta(
-                    inst, res.sol, move.i, move.j);
-            }
-
-            if (delta >= 0)
-                continue;
-
-            // Greedy: apply the first improving move.
-            if (search == SearchType::GREEDY)
-            {
-                best_move = move;
-                best_delta = delta;
-                found = true;
-                break;
-            }
-
-            // Steepest: remember the best improving move.
-            if (!found || delta < best_delta)
-            {
-                best_delta = delta;
-                best_move = move;
-                found = true;
+        } else {
+            // greedy: random order of the two kinds of moves and random starting
+            // points of both loops, the first improving move is taken
+            bool inter_first = rng() % 2;
+            int oi = rng() % k, oj = rng() % n;
+            for (int part = 0; part < 2 && bt < 0; part++) {
+                if ((part == 0) == inter_first) {
+                    for (int a = 0; a < k && bt < 0; a++)
+                        for (int b = 0; b < n; b++) {
+                            int i = (oi + a) % k, j = (oj + b) % n;
+                            if (ls.used[j])
+                                continue;
+                            int x = ls.delta(0, i, j);
+                            if (x < 0) {
+                                best = x, bt = 0, bi = i, bj = j;
+                                break;
+                            }
+                        }
+                } else {
+                    for (int a = 0; a < k && bt < 0; a++)
+                        for (int b = 0; b < k; b++) {
+                            int i = (oi + a) % k, j = (oj + b) % k;
+                            if (i > j)
+                                std::swap(i, j);
+                            if (i == j || (edges && !ls.valid_2opt(i, j)))
+                                continue;
+                            int x = ls.delta(intra, i, j);
+                            if (x < 0) {
+                                best = x, bt = intra, bi = i, bj = j;
+                                break;
+                            }
+                        }
+                }
             }
         }
-
-        // No improving move: local optimum reached.
-        if (!found)
+        if (bt < 0)
             break;
-
-        apply_move(best_move, res.sol, used);
-        res.obj += best_delta;
+        ls.apply(bt, bi, bj);
+        res.obj += best;
     }
-
     return res;
 }
 
-Result steepest_nodes_random(const Instance &inst, int start)
-{
-    return local_search(inst, start, SearchType::STEEPEST,
-                        IntraMove::NODES, false);
-}
-
-Result steepest_nodes_greedy(const Instance &inst, int start)
-{
-    return local_search(inst, start, SearchType::STEEPEST,
-                        IntraMove::NODES, true);
-}
-
-Result steepest_edges_random(const Instance &inst, int start)
-{
-    return local_search(inst, start, SearchType::STEEPEST,
-                        IntraMove::EDGES, false);
-}
-
-Result steepest_edges_greedy(const Instance &inst, int start)
-{
-    return local_search(inst, start, SearchType::STEEPEST,
-                        IntraMove::EDGES, true);
-}
-
-Result greedy_nodes_random(const Instance &inst, int start)
-{
-    return local_search(inst, start, SearchType::GREEDY,
-                        IntraMove::NODES, false);
-}
-
-Result greedy_nodes_greedy(const Instance &inst, int start)
-{
-    return local_search(inst, start, SearchType::GREEDY,
-                        IntraMove::NODES, true);
-}
-
-Result greedy_edges_random(const Instance &inst, int start)
-{
-    return local_search(inst, start, SearchType::GREEDY,
-                        IntraMove::EDGES, false);
-}
-
-Result greedy_edges_greedy(const Instance &inst, int start)
-{
-    return local_search(inst, start, SearchType::GREEDY,
-                        IntraMove::EDGES, true);
-}
+Result steepest_nodes_random(const Instance& inst, int start) { return local_search(inst, start, true, false, false); }
+Result steepest_nodes_greedy(const Instance& inst, int start) { return local_search(inst, start, true, false, true); }
+Result steepest_edges_random(const Instance& inst, int start) { return local_search(inst, start, true, true, false); }
+Result steepest_edges_greedy(const Instance& inst, int start) { return local_search(inst, start, true, true, true); }
+Result greedy_nodes_random(const Instance& inst, int start) { return local_search(inst, start, false, false, false); }
+Result greedy_nodes_greedy(const Instance& inst, int start) { return local_search(inst, start, false, false, true); }
+Result greedy_edges_random(const Instance& inst, int start) { return local_search(inst, start, false, true, false); }
+Result greedy_edges_greedy(const Instance& inst, int start) { return local_search(inst, start, false, true, true); }
