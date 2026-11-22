@@ -100,3 +100,17 @@ Methods: Candidate moves for local search
 `venv/bin/python scripts/checker.py N` pastes every best solution of assignment N into
 column F of a copy of the solution checker, recalculates it in Numbers (macOS only) and
 compares the result with `summary.csv`.
+
+## Assignment 5: List of improving moves in local search
+
+```
+./build/run --assignment 5
+venv/bin/python scripts/plot_best.py 5
+venv/bin/python scripts/tables.py 5
+venv/bin/python scripts/checker.py 5
+```
+
+Steepest local search (2-opt and node exchange, random start) with a list of improving
+moves kept between iterations, in `src/methods/move_list.cpp`. The baseline steepest
+search from assignment 3 and the 10 candidate moves from assignment 4 are run again for
+comparison.

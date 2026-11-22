@@ -51,6 +51,13 @@ static std::vector<Method> methods_for(int assignment)
         methods.push_back({"steepest_edges_10candidate", steepest_edges_random_10candidate});
         return methods;
     }
+    if (assignment == 5)
+    {
+        methods.push_back({"steepest_edges_random", steepest_edges_random});
+        methods.push_back({"steepest_edges_10candidate", steepest_edges_random_10candidate});
+        methods.push_back({"steepest_edges_lm", steepest_edges_lm});
+        return methods;
+    }
 
     return {};
 }

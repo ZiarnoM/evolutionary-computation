@@ -45,3 +45,5 @@ Result greedy_edges_greedy(const Instance &inst, int start);
 
 Result steepest_edges_random_candidate(const Instance &inst, int start, int candidate_count);
 Result steepest_edges_random_10candidate(const Instance &inst, int start);
+// steepest local search with a list of improving moves, see move_list.cpp
+Result steepest_edges_lm(const Instance &inst, int start);
