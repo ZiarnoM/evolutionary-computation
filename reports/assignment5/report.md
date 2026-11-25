@@ -23,9 +23,9 @@ In the following, `d` is the distance matrix and `c` is the vector of costs. For
 
 ## Baseline and candidate moves
 
-The point of the assignment is to compare running times, so the baseline should not lose time on things that have nothing to do with the list of moves. The local search from Assignment 3 built a new vector with all moves of the neighborhood in every iteration, and the delta of a node swap allocated a small vector on every call. We rewrote it so that the neighborhood is browsed with two loops directly over the solution, and in the loop over unselected nodes the part of the delta that depends only on the removed node is computed once. The moves are checked in the same order as before, so the steepest search gives exactly the same solutions as in Assignment 3 (for the same starting solutions), only the time changed. For this neighborhood one run went down from 14.9 ms to 1.95 ms on our machine.
+The baseline browses the whole neighborhood with two loops directly over the solution: all pairs of non-adjacent edges for 2-opt and all pairs (selected node, unselected node) for the exchange, and applies the move with the smallest delta.
 
-The candidate moves from Assignment 4 were rewritten in the same way. In every iteration, for every selected node `a` and every node `b` from the candidate list of `a`, the moves that add the edge `a-b` are evaluated: two 2-opt moves if `b` is selected (removing the edges after `a` and after `b`, or the edges before `a` and before `b`), and two node exchanges if it is not (`b` replaces the successor or the predecessor of `a`). Before, the candidate list of a node was made of the 10 nodes with the smallest distance plus node cost. On TSPA the costs are large compared to distances, so these lists were filled with cheap but distant nodes, and the average objective was about 80000, 4000 worse than the full neighborhood. With the 10 nearest nodes by distance alone, as in the description of candidate moves in the lecture, the loss is much smaller, so this version is used here.
+In the candidate moves, for every selected node `a` and every node `b` among the 10 nearest nodes of `a`, the moves that add the edge `a-b` are evaluated: two 2-opt moves if `b` is selected, and two node exchanges if it is not (`b` replaces the successor or the predecessor of `a`). The nearest nodes are chosen by distance only, as in the description of candidate moves in the lecture.
 
 ## Representation of moves
 
@@ -41,7 +41,7 @@ When a 2-opt move `(a, b, c, d)` is taken from the list, there are three cases:
 2. Both edges exist, but in different relative directions, for example `a->b` and `d->c`. Removing them and adding `a-c` and `b-d` would split the cycle into two, so the move cannot be applied now. It stays in the list, because it can become applicable after some later reversal of a segment.
 3. Both edges exist in the same relative direction, `a->b` and `c->d` or both reversed, `b->a` and `d->c`. The move is applied and removed from the list. In the second case the segment between the edges is the same, only seen from the other side, so the new edges and the delta are the same.
 
-For a node exchange the direction does not matter. The move is applicable if `u` is still unselected and the edges `p-v` and `v-s` still exist, otherwise it is removed. A move that became invalid because `u` was selected is not lost: when `u` is removed from the cycle again, all moves inserting `u` are evaluated anew.
+For a node exchange the direction does not matter. The move is applicable if `u` is still unselected and the edges `p-v` and `v-s` still exist, otherwise it is removed. A move removed because `u` was selected does not have to be kept: when `u` is removed from the cycle again, all moves inserting `u` are evaluated anew.
 
 ## Evaluating new moves
 
@@ -58,7 +58,7 @@ In both cases this is about 800 deltas, while the baseline computes 4850 deltas 
 ```
 x = random solution
 LM = empty list of moves ordered by delta
-add all improving moves of x to LM, 2-opt moves in both relative directions
+add all improving moves of x to LM (2-opt in both relative directions and node exchanges)
 repeat:
     m = none
     for move in LM from the best:
